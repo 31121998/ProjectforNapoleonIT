@@ -57,11 +57,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             numView.text = num.toString()
         }
     }
-//    fun randComics(view: View) {
-//        num = Random()
-//        loadData(num)
-//        numView.text = num.toString()
-//    }
+    fun randComics(view: View) {
+        num = (1..2134).random()
+        loadData(num)
+        numView.text = num.toString()
+    }
 
 
     fun lastComics(view: View) {
