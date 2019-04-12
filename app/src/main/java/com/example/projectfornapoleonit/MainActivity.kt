@@ -1,9 +1,13 @@
 package com.example.projectfornapoleonit
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.TextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.repo_layout.*
@@ -27,15 +31,30 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + rootJob
 
+    private fun isNetworkAvailable(): Boolean{
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
+        return if (connectivityManager is ConnectivityManager){
+            val networkInfo = connectivityManager.activeNetworkInfo
+            networkInfo.isConnected
+        }else false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val repoList = findViewById<RecyclerView>(R.id.repoList)
         repoList.layoutManager = LinearLayoutManager(this)
         repoList.adapter = adapter
-        loadData(num)
-
+        if (isNetworkAvailable()) loadData(num)
+        else findViewById<TextView>(R.id.repoName).text = "No connection"
     }
+
+//    fun retryConnection(){
+//        if (isNetworkAvailable()) {
+//            loadData(num)
+//        }else findViewById<TextView>(R.id.repoName).text = "No connection"
+//    }
+
     fun firstComics(view: View) {
         num = 1
         loadData(num)
