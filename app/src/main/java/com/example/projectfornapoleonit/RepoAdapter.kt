@@ -26,7 +26,7 @@ class RepoAdapter : RecyclerView.Adapter<RepoAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         p0.itemView.findViewById<TextView>(R.id.repoName).text = data[p1].safe_title
-        val comicsImageView =  p0.itemView.findViewById<ImageView>(R.id.comics)
+        val comicsImageView =  p0.itemView.findViewById<com.jsibbold.zoomage.ZoomageView>(R.id.comics)
         Picasso.get().load(data[p1].img).into(comicsImageView)
     }
 
