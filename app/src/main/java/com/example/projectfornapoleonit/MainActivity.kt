@@ -19,8 +19,6 @@ import kotlin.coroutines.CoroutineContext
 
 
 
-
-
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
     val adapter = RepoAdapter()
@@ -39,21 +37,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }else false
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val repoList = findViewById<RecyclerView>(R.id.repoList)
         repoList.layoutManager = LinearLayoutManager(this)
         repoList.adapter = adapter
-        if (isNetworkAvailable()) loadData(num)
-        else findViewById<TextView>(R.id.repoName).text = "No connection"
+        loadData(num)
+
     }
 
-//    fun retryConnection(){
-//        if (isNetworkAvailable()) {
-//            loadData(num)
-//        }else findViewById<TextView>(R.id.repoName).text = "No connection"
-//    }
+    fun retryConnection(){
+        if (isNetworkAvailable()) {
+            loadData(num)
+        }else findViewById<TextView>(R.id.repoName).text = "No connection"
+    }
 
     fun firstComics(view: View) {
         num = 1
