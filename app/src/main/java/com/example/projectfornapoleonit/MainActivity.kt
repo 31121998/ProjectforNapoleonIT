@@ -1,27 +1,21 @@
 package com.example.projectfornapoleonit
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.android.synthetic.main.repo_layout.*
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
-    val adapter = RepoAdapter()
 
     private val httpClient = OkHttpClient.Builder().build()
     var num = 1
@@ -29,29 +23,36 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + rootJob
 
-    private fun isNetworkAvailable(): Boolean{
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
-        return if (connectivityManager is ConnectivityManager){
-            val networkInfo = connectivityManager.activeNetworkInfo
-            networkInfo.isConnected
-        }else false
-    }
-
+//    private fun isNetworkAvailable(): Boolean{
+//        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
+//        return if (connectivityManager is ConnectivityManager){
+//            val networkInfo = connectivityManager.activeNetworkInfo
+//            networkInfo.isConnected
+//        }else false
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val repoList = findViewById<RecyclerView>(R.id.repoList)
-        repoList.layoutManager = LinearLayoutManager(this)
-        repoList.adapter = adapter
         loadData(num)
-
     }
 
-    fun retryConnection(){
-        if (isNetworkAvailable()) {
+//    fun retryConnection(){
+//        if (isNetworkAvailable()) {
+//            loadData(num)
+//        }else findViewById<TextView>(R.id.repoName).text = "No connection"
+//    }
+    fun selectComics(view: View){
+        editText2.isCursorVisible = true
+        val comicsNum = editText2.text.toString()
+        if (comicsNum!=""){
+            num = Integer.parseInt(comicsNum)
+            if (num>2134) num = 2134
+            numView.text = num.toString()
             loadData(num)
-        }else findViewById<TextView>(R.id.repoName).text = "No connection"
+            editText2.text.clear()
+            editText2.isCursorVisible = false
+        }
     }
 
     fun firstComics(view: View) {
@@ -75,12 +76,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             numView.text = num.toString()
         }
     }
+
     fun randComics(view: View) {
         num = (1..2134).random()
         loadData(num)
         numView.text = num.toString()
     }
-
 
     fun lastComics(view: View) {
         num = 2134
@@ -92,15 +93,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         val request = Request.Builder()
             .url("https://xkcd.com/$num/info.0.json")
             .build()
-        val response: String = withContext(Dispatchers.IO) {
-            httpClient.newCall(request).execute().body()!!.string()
-        }
-        val type = object : TypeToken<Repo>() {}
-        val repos = Gson().fromJson<Repo>(response, type.type)
-        adapter.data.clear()
-        adapter.data.add(repos)
-        adapter.notifyDataSetChanged()
+    val response: String = withContext(Dispatchers.IO) {
+        httpClient.newCall(request).execute().body()!!.string()
     }
+    val type = object : TypeToken<Repo>() {}
+    val repos = Gson().fromJson<Repo>(response, type.type)
+    findViewById<TextView>(R.id.repoName).text = repos.safe_title
+    val imageWindow = findViewById<com.jsibbold.zoomage.ZoomageView>(R.id.comics)
+    Picasso.get().load(repos.img).into(imageWindow);
+}
 
     override fun onDestroy() {
         rootJob.cancel()
