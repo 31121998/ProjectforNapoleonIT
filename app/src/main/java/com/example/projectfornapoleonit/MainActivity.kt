@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private val httpClient = OkHttpClient.Builder().build()
     var num = (1..2134).random()
+    var urlOfImg = ""
     private val rootJob = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + rootJob
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
     fun addToFavorite(view: View){
         doAsync {
-            db.userDao().insert(User(num, num.toString()))
+            db.userDao().insert(User(num, repoName.text.toString(), urlOfImg))
         }
     }
     fun goToFavorite(){
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         val repos = Gson().fromJson<Repo>(response, type.type)
         findViewById<TextView>(R.id.repoName).text = repos.safe_title
         val imageWindow = findViewById<com.jsibbold.zoomage.ZoomageView>(R.id.comics)
-        val urlOfImg = repos.img
+        urlOfImg = repos.img
         Picasso.get().load(urlOfImg).into(imageWindow)
         }
 
