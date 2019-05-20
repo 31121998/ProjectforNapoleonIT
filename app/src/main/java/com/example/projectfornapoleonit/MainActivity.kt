@@ -15,7 +15,15 @@ import okhttp3.Request
 import org.jetbrains.anko.doAsync
 import kotlin.coroutines.CoroutineContext
 import android.content.Intent
+import android.support.v7.app.ActionBar
 import android.widget.Button
+import android.widget.Toast
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
+import org.jetbrains.anko.wrapContent
+import android.view.ViewGroup
+
+
 
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -29,10 +37,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         get() = Dispatchers.Main + rootJob
 
     lateinit var db: AppDatabase
+    lateinit var mShare: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.hide()
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "Database"
@@ -41,8 +51,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         goFavBtn.setOnClickListener {
             goToFavorite()
         }
+        mShare = findViewById(R.id.button4)
+        mShare.setOnClickListener {
+            val myIntent = Intent(Intent.ACTION_SEND)
+            myIntent.type = "type/plain"
+            myIntent.putExtra(Intent.EXTRA_TEXT , urlOfImg)
+            startActivity(Intent.createChooser(myIntent, "Share comics"))
+        }
         loadData(num)
     }
+
 
     fun selectComics(view: View){
         editText2.isCursorVisible = true
@@ -84,11 +102,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         num = 2134
         loadData(num)
     }
+
     fun addToFavorite(view: View){
         doAsync {
             db.userDao().insert(User(num, repoName.text.toString(), urlOfImg))
+            uiThread{
+                toast("Comics added to favorite")
+            }
         }
     }
+
     fun goToFavorite(){
         val goToFavorite = Intent(this, FavoriteActivity::class.java)
         startActivity(goToFavorite)
